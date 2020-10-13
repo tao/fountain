@@ -13,3 +13,9 @@ The parser currently uses some CommonMark elements for inline markdown processin
     // parse fountain elements into html
     $html = (new FountainTags())->parse($fountainElements);
 ```
+
+## Mentions
+The code has been built upon the previous work of these contributors.
+
+ * Alex King (PHP port)
+ * Yousefi & John August (original Objective-C version)
