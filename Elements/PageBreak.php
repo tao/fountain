@@ -10,9 +10,6 @@ use App\Fountain\AbstractElement;
  */
 class PageBreak extends AbstractElement
 {
-    /**
-     * Match any row with 3 dashes or equal signs
-     */
     public const REGEX = "/^(-{3,})|(={3,})\s*$/";
 
     public function match($line) {
@@ -24,7 +21,7 @@ class PageBreak extends AbstractElement
         return $line;
     }
 
-    public function render($line)
+    public function __toString()
     {
         return '<hr />';
     }

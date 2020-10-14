@@ -6,9 +6,6 @@ use App\Fountain\AbstractElement;
 
 class NewLine extends AbstractElement
 {
-    /**
-     * Check whether a code block starts or ends on this line
-     */
     public const REGEX = "/^\s*$/";
 
     public function match($line) {
@@ -21,8 +18,8 @@ class NewLine extends AbstractElement
         return $line;
     }
 
-    public function render($line)
+    public function __toString()
     {
-        return $line;
+        return '';
     }
 }

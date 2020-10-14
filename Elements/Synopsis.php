@@ -15,31 +15,24 @@ use App\Fountain\AbstractElement;
  */
 class Synopsis extends AbstractElement
 {
-    public $shouldParseMarkdown = true;
+    public $parseEmphasis = true;
+    public $first;
 
-    /**
-     * If there aren't any preceding newlines, and there's a "!"
-     * Additional action lines will be appended later.
-     */
     public const REGEX = "/^=\s/";
 
     public function match($line) {
        return preg_match(self::REGEX, trim($line));
     }
 
-    /**
-     * Find and return the text of the synopsis without =
-     */
     function sanitize($line)
     {
         preg_match("/^\s*={1}(.*)/", $line, $matches);
         return trim($matches[1]);
     }
 
-    public function render($line)
+    public function __toString()
     {
-        $synopsis = '<p class="synopsis">'.$line.'</p>';
-        // Synopsis are ignored in the output
-        return;
+        // Section headings are ignored in the output
+        return '';
     }
 }

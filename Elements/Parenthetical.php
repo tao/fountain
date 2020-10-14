@@ -13,9 +13,6 @@ use App\Fountain\AbstractElement;
  */
 class Parenthetical extends AbstractElement
 {
-    /**
-     * Match (Parenthesis)
-     */
     public const REGEX = "/^\s*\(/";
 
     public function match($line) {
@@ -24,11 +21,6 @@ class Parenthetical extends AbstractElement
 
     public function sanitize($line)
     {
-        return $line;
-    }
-
-    public function render($line)
-    {
-        return '<p class="parenthesis"><em>'.$line.'</em></p>';
+        return trim($line);
     }
 }

@@ -22,9 +22,4 @@ class Lyrics extends AbstractElement
         preg_match("/^(\s*)?~{1}(.*)/", trim($line), $matches);
         return trim($matches[2]);
     }
-
-    public function render($line)
-    {
-        return '<p class="lyrics">'.$line.'</p>';
-    }
 }

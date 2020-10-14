@@ -2,8 +2,6 @@
 
 namespace App\Fountain;
 
-use App\Fountain\FountainElement;
-
 /**
  * FountainElement
  * Based off the FastFountainParser.m
@@ -15,34 +13,28 @@ use App\Fountain\FountainElement;
  */
 class FountainElementCollection
 {
-
     public $elements;
     public $types;
 
     /**
      * Add and index the element
-     * @param  FountainElement  $element
+     * @param  AbstractElement  $element
      */
-    public function add_element(FountainElement $element)
+    public function add_element($element)
     {
         // add to the element array
         $this->elements[] = $element;
 
         // add to the types array for quick searching
-        $this->types[] = $element->type;
+        $this->types[] = $element->getType();
     }
 
     /**
      * Convenience function for creating and adding a FountainElement
-     * @param  string  $type  Character, Dialog, etc.
-     * @param  string  $text  Text for the element
-     * @param  array  $extras  Additional properties
+     * @param  string  $element  Character, Dialog, etc.
      */
-    public function create_and_add_element($type, $text, $extras = array())
+    public function create_and_add_element($element)
     {
-        // create
-        $element = new FountainElement($type, $text, $extras);
-
         // add to the collection
         $this->add_element($element);
     }

@@ -5,7 +5,7 @@ namespace App\Fountain;
 use App\Fountain\Elements\Action;
 use App\Fountain\Elements\BlankLine;
 use App\Fountain\Elements\NewLine;
-use App\Fountain\Elements\CenteredText;
+use App\Fountain\Elements\TextCenter;
 use App\Fountain\Elements\Character;
 use App\Fountain\Elements\Boneyard;
 use App\Fountain\Elements\Dialogue;
@@ -19,9 +19,6 @@ use App\Fountain\Elements\SectionHeading;
 use App\Fountain\Elements\Synopsis;
 use App\Fountain\Elements\Transition;
 
-use App\Fountain\FountainElementCollection;
-use App\Fountain\FountainType as Type;
-
 /**
  * FountainParser
  * Based off the FastFountainParser.m
@@ -33,7 +30,6 @@ use App\Fountain\FountainType as Type;
  */
 class FountainParser
 {
-
     /**
      * Element Collection
      * @var FountainElementCollection
@@ -71,16 +67,9 @@ class FountainParser
         $first_line = true;
         $last_line = false;
 
-        // keep track of preceding newlines
-        $newlines_before = 0;
-        $newline = false;
-
         // keep track of whether we are inside a comment block, and what its text is
         $comment_block = false;
         $comment_text = '';
-
-        // keep track of whether we are inside a dialog block
-        $dialog_block = false;
 
         //-----------------------------------------------------
         // Process each line separately
@@ -91,11 +80,6 @@ class FountainParser
 
         // process each line
         foreach ($lines as $line_number => $line) {
-
-            // reset the newline count if necessary
-            if (!$newline) {
-                $newlines_before = 0;
-            }
 
             // keep track of the first line
             if ($line_number > 0) {
@@ -110,60 +94,54 @@ class FountainParser
 
             /**
              * -----------------------------------------------------
-             * Blank Lines
+             * Blank Lines (two spaces)
              * -----------------------------------------------------
              */
 
             if ((new BlankLine())->match($line)) {
                 // check if the previous element was dialogue
                 $last_element = $this->last_element();
-                if ($last_element && $last_element->type == Type::Dialogue) {
-                    // the previous element was dialogue, so we can combine the text.
-                    // two line breaks (\n\n) are necessary for markdown to split
-                    // the dialogue elements into separate paragraph tags.
-                    $last_element->text .= "\n\n" . $line;
+                if ($last_element && $last_element->is(Dialogue::class)) {
+                    // add a blank line to the previous dialog for rendering
+                    $last_element->appendText(PHP_EOL.PHP_EOL);
                 }
 
-                continue;
-            }
-
-            // assert if this is a blank line
-            $assertBlankLine = (new NewLine())->match($line) && !$comment_block;
-            if ($last_line) $assertBlankLine = false;
-
-            // check for a blank line (line is empty, or has whitespace characters)
-            if ($assertBlankLine) {
-                $dialog_block = false;      // blank lines end dialog blocks
-                $newlines_before++;         // increment newline count
-                $newline = true;
                 continue;                   // no further processing needed
-            } else {
-                $newline = false;           // note that this isn't a newline
             }
 
             /**
              * -----------------------------------------------------
-             * Synopses
+             * New Lines (empty line)
+             * -----------------------------------------------------
+             */
+
+            // assert if this is a new line
+            $assertNewLine = (new NewLine())->match($line) && !$comment_block;
+            if ($last_line) $assertNewLine = false;
+
+            // check for a blank line
+            if ($assertNewLine) {
+                $this->add_element((new NewLine()));
+                continue;                   // no further processing needed
+            }
+
+            /**
+             * -----------------------------------------------------
+             * Synopsis
              * -----------------------------------------------------
              * If there aren't any preceding newlines, and there's a "="
              */
 
             // check if there is a blank line before this element
             // or if this element is on the first line
-            $assertNewline = ($newlines_before > 0 || $first_line);
+            $assertNewline = ($this->last_element_newline() || $first_line);
             $assertSynopsis = ($assertNewline && (new Synopsis())->match($line));
 
             if ($assertSynopsis) {
-                $synopsis = (new Synopsis())->sanitize($line);
-
-                $upgradeSynopsis = ($first_line);
-
-                // add a synopsis element
-                $this->add_element(Type::Synopsis, $synopsis, array(
-                    'first' => $upgradeSynopsis
-                ));
-
-                continue;
+                $synopsis = (new Synopsis())->create($line);
+                $synopsis->first = ($first_line);
+                $this->add_element($synopsis);
+                continue;                   // no further processing needed
             }
 
             /**
@@ -181,7 +159,8 @@ class FountainParser
                 // if the comment ends on this line
                 if ($boneyard && $comment_block) {
                     $comment_text = (new Boneyard())->sanitize($line);
-                    $this->add_element(Type::Boneyard, $comment_text);
+                    $boneyard_element = (new Boneyard())->create($comment_text);
+                    $this->add_element($boneyard_element);
                     $comment_block = false;
                     $comment_text = ''; // reset the text
                 }
@@ -192,8 +171,7 @@ class FountainParser
                 // if the comment continues on this line
                 if (!$boneyard && $comment_block) $comment_text .= "$line\n";
 
-                // no further processing of this line is needed
-                continue;
+                continue;                   // no further processing needed
             }
 
             /**
@@ -204,8 +182,8 @@ class FountainParser
 
             if ((new PageBreak())->match($line)) {
                 // add a page break element
-                $this->add_element(Type::PageBreak, $line);
-                continue;
+                $this->add_element((new PageBreak()));
+                continue;                   // no further processing needed
             }
 
             /**
@@ -216,26 +194,26 @@ class FountainParser
              * Additional lyrical lines will be appended later.
              */
 
-            $assertLyrics = ($newlines_before && (new Lyrics())->match($line));
+            $assertLyrics = ($this->last_element_newline() && (new Lyrics())->match($line));
 
             if ($assertLyrics) {
-                $lyric = (new Lyrics())->sanitize($line);
-                $this->add_element(Type::Lyrics, $lyric);
-                continue;
+                $lyrics = (new Lyrics())->create($line);
+                $this->add_element($lyrics);
+                continue;                   // no further processing needed
             }
 
             /**
              * -----------------------------------------------------
              * Action
              * -----------------------------------------------------
-             * If there aren't any preceding newlines, and there's a "!"
+             * If there's a forced action "!"
              * Additional action lines will be appended later.
              */
 
             if ((new Action())->match($line)) {
-                $action = (new Action())->sanitize($line);
-                $this->add_element(Type::Action, $action);
-                continue;
+                $action = (new Action())->create($line);
+                $this->add_element($action);
+                continue;                   // no further processing needed
             }
 
             /**
@@ -244,11 +222,11 @@ class FountainParser
              * -----------------------------------------------------
              */
 
-            if ($newlines_before && (new Notes())->match($line)) {
-                $text = (new Notes())->sanitize($line);
-                $this->add_element(Type::Notes, $text);
-                $newline = true; // force next element to start in a new element/thread
-                continue;
+            if ($this->last_element_newline() && (new Notes())->match($line)) {
+                $notes = (new Notes())->create($line);
+                $this->add_element($notes);
+                $this->add_element(new NewLine());
+                continue;                   // no further processing needed
             }
 
             /**
@@ -256,32 +234,30 @@ class FountainParser
              * Section Headings
              * -----------------------------------------------------
              * check if this line starts with a #
-             *
-             * WARNING: Modified to allow other elements to appear after a heading
-             *                    without having a blank line between them
              */
 
             $assertSection = (new SectionHeading())->match($line);
-            if ($strict) $assertSection = ($newlines_before && $assertSection);
+            $assertSection = ($this->last_element_newline() && $assertSection);
 
             if ($assertSection) {
                 // add a section heading
-                $this->add_element(Type::SectionHeading, $line);
-                if (!$strict) $newline = true; // force next element to start in a new element/thread
-                continue;
+                $sectionHeading = (new SectionHeading())->create($line);
+                $this->add_element($sectionHeading);
+                $this->add_element(new NewLine());
+                continue;                   // no further processing needed
             }
 
             /**
              * -----------------------------------------------------
              * Scene Headings
              * -----------------------------------------------------
-             * WARNING: Modified to allow only INT. or EXT. Scene headings
              */
 
-            if ((new SceneHeading())->match($line, $strict)) {
-                $text = (new SceneHeading())->sanitize($line);
-                $this->add_element(Type::SceneHeading, $text);
-                continue;
+            if ((new SceneHeading())->match($line)) {
+                $scene = (new SceneHeading())->create($line);
+                $this->add_element($scene);
+                $this->add_element(new NewLine());
+                continue;                   // no further processing needed
             }
 
             /**
@@ -291,22 +267,19 @@ class FountainParser
              * Check whether the line starts with > and ends with <
              */
 
-            if ((new CenteredText())->match($line)) {
-                $text = (new CenteredText())->sanitize($line);
+            if ((new TextCenter())->match($line)) {
+                $text = (new TextCenter())->create($line);
 
                 // check if the previous element was centered
                 $last_element = $this->last_element();
-                if (
-                    (!$newlines_before) &&
-                    ($last_element && $last_element->type == Type::CenteredText)
-                ) {
+                if ($last_element && $last_element->is(TextCenter::class)) {
                     // the previous element was centered, so we can combine the text.
-                    $last_element->text .= "\n".$text;
+                    $last_element->addendText(PHP_EOL.$text);
                 } else {
-                    $this->add_element(Type::CenteredText, $text);
+                    $this->add_element($text);
                 }
 
-                continue;
+                continue;                   // no further processing needed
             }
 
             /**
@@ -317,9 +290,9 @@ class FountainParser
              */
 
             if ((new Transition())->match($line)) {
-                $text = (new Transition())->sanitize($line);
-                $this->add_element(Type::Transition, $text);
-                continue;
+                $text = (new Transition())->create($line);
+                $this->add_element($text);
+                continue;                   // no further processing needed
             }
 
             /**
@@ -333,7 +306,7 @@ class FountainParser
 
             // check if there is a blank line before this element
             // or if this element is on the first line
-            $assertNewline = ($newlines_before || $first_line);
+            $assertNewline = ($this->last_element_newline() || $first_line);
 
             // assert a character element
             $assertCharacter = $assertNewline && (new Character())->match($line);
@@ -349,25 +322,25 @@ class FountainParser
                         $dual_dialog = true;
 
                         // check for a previous character - grab it by reference if it exists
-                        if ($previous_character = &$this->elements()->find_last_element_of_type(Type::Character)) {
+                        if ($previous_character = &$this->elements()->find_last_element_of_type(Character::class)) {
                             // set it to dual dialog
                             $previous_character->dual_dialog = true;
                         }
                     }
 
                     // add a character element
-                    $extras = array('dual_dialog' => $dual_dialog);
-                    $character = (new Character())->sanitize($line);
-                    $this->add_element(Type::Character, $character, $extras);
+                    $line = (new DualDialogue())->sanitize($line);
+                    $character = (new Character())->create($line);
+                    $character->dual_dialog = $dual_dialog;
+                    $this->add_element($character);
 
                     // Check if the Character contains inline parenthesis
                     if (preg_match("/\(.*\)/", $line, $matches)) {
-                        $this->add_element(Type::Parenthetical, $matches[0]);
+                        $parenthesis = (new Parenthetical())->create($matches[0]);
+                        $this->add_element($parenthesis);
                     }
 
-                    // note that we're within a dialog block
-                    $dialog_block = true;
-                    continue;
+                    continue;                   // no further processing needed
                 }
             }
 
@@ -378,41 +351,18 @@ class FountainParser
              */
 
             // assert if this is a parenthetical element
-            $assertParenthetical = !$newlines_before && (new Parenthetical())->match($line);
+            $assertParenthetical = !$this->last_element_newline() && (new Parenthetical())->match($line);
 
-            // check if we're inside a dialog block
-            if ($dialog_block) {
-
-                // handle parenthesis elements
-                if ($assertParenthetical) {
-                    // add a parenthetical element
-                    $this->add_element(Type::Parenthetical, $line);
-                    // force new elements to start in a new parent element/thread
-                    $newline = true;
-                }
-
-                // handle dialogue elements
-                if (!$assertParenthetical) {
-                    // check if the previous element was dialogue
-                    $last_element = $this->last_element();
-
-                    if ($last_element && $last_element->type == Type::Dialogue) {
-                        // the previous element was dialogue, so we can combine the text.
-                        // two line breaks (\n\n) are necessary for markdown to split
-                        // the dialogue elements into separate paragraph tags.
-                        $last_element->text .= "\n\n".$line;
-                    } else {
-                        // return dialogue as the default element
-                        // WARNING: previously action was returned as default
-                        $this->add_element(Type::Dialogue, $line);
-                    }
-                }
-
+            // handle parenthesis elements
+            if ($assertParenthetical) {
+                // add a parenthetical element
+                $parenthesis = (new Parenthetical())->create($line);
+                $this->add_element($parenthesis);
                 continue;
             }
 
             // if there were no newline before, and this isn't our first element
-            if (!$newlines_before) {
+            if (!$this->last_element_newline()) {
 
                 /**
                  * If there are no newlines before
@@ -425,61 +375,59 @@ class FountainParser
                 $last_element = $this->last_element();
                 if (!$last_element) continue;
 
-                switch ($last_element->type) {
-                    case Type::Lyrics:
+                switch ($last_element->getType()) {
+                    case Lyrics::class:
                     {
                         // lyrics should not be separated into paragraphs
                         // add this line to the previous element with a single line break
                         $lyric = (new Lyrics())->sanitize($line);
-                        $last_element->text .= PHP_EOL.$lyric;
+                        $last_element->appendText(PHP_EOL.$lyric);
                         break;
                     }
-                    case Type::CenteredText:
+                    case TextCenter::class:
                     {
-                        $text = (new CenteredText())->sanitize($line);
-                        $last_element->text .= PHP_EOL.$text;
+                        $text = (new TextCenter())->sanitize($line);
+                        $last_element->appendText(PHP_EOL.$text);
                         break;
                     }
-                    case Type::Synopsis:
+                    case Synopsis::class:
                     {
                         $text = (new Synopsis())->sanitize($line);
-                        $last_element->text .= PHP_EOL.PHP_EOL.$text;
+                        $last_element->appendText(PHP_EOL.PHP_EOL.$text);
                         break;
                     }
-                    case Type::Dialogue:
+                    case Parenthetical::class:
+                    case Character::class:
                     {
-                        $last_element->text .= PHP_EOL.$line;
+                        $dialogue = (new Dialogue())->create($line);
+                        $this->add_element($dialogue);
+                        break;
+                    }
+                    case Dialogue::class:
+                    {
+                        $last_element->appendText(PHP_EOL.$line);
                         break;
                     }
                     default:
                     {
                         // add this line to the previous element
                         // using a double newline for a line break in markdown
-                        $last_element->text .= PHP_EOL.PHP_EOL.$line;
+                        $last_element->appendText(PHP_EOL.PHP_EOL.$line);
                     }
                 }
 
-                 continue;
+                continue;                   // no further processing needed
             }
 
             /**
              * If there are newlines previously
              */
-            if ($newlines_before && $line !== "") {
-                // check if this starts with a (
-                // WARNING: modification to allow parenthesis to exist on its own
-                if ((new Parenthetical())->match($line)) {
-                    // add a parenthetical element
-                    $this->add_element(Type::Parenthetical, $line);
-                    // force new elements to start in a new parent element/thread
-                    $newline = true;
-                } else {
-                    // return dialogue as the default element
-                    // WARNING: previously action was returned as default
-                    $this->add_element(Type::Action, $line);
-                }
+            if ($this->last_element_newline()) {
+                // return action as the default element
+                $action = (new Action())->create($line);
+                $this->add_element($action);
 
-                 continue;
+                continue;                   // no further processing needed
             }
         }
 
@@ -500,13 +448,11 @@ class FountainParser
 
     /**
      * Add an Element to the collection
-     * @param  string  $type  Character, Dialog, etc.
-     * @param  string  $text  Text for the element
-     * @param  array  $extras  Additional properties
+     * @param $element AbstractElement
      */
-    public function add_element($type, $text, $extras = array())
+    public function add_element($element)
     {
-        $this->elements()->create_and_add_element($type, $text, $extras);
+        $this->elements()->create_and_add_element($element);
     }
 
     /**
@@ -518,5 +464,16 @@ class FountainParser
     {
         $last_element = &$this->elements()->last_element();
         return $last_element;
+    }
+
+    /**
+     * Detect if the previous element was a NewLine
+     *
+     * @return bool
+     */
+    private function last_element_newline()
+    {
+        $last_element = $this->last_element();
+        return ($last_element && $last_element->is(NewLine::class));
     }
 }

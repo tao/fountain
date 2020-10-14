@@ -5,12 +5,12 @@ namespace App\Fountain\Elements;
 use App\Fountain\AbstractElement;
 
 /**
- * Centered
+ * Centered Text
  * Allow a single line of text to be centered
  */
-class CenteredText extends AbstractElement
+class TextCenter extends AbstractElement
 {
-    public $shouldParseMarkdown = true;
+    public $parseEmphasis = true;
 
     public const REGEX = "/^(\s+)?(>.*<)$/";
 
@@ -25,10 +25,5 @@ class CenteredText extends AbstractElement
         $text = substr($line, 1);               // (remove >)
         $text = substr($text, 0, -1);   // (remove <)
         return $text;
-    }
-
-    public function render($line)
-    {
-        return '<p class="text-center">'.$line.'</p>';
     }
 }

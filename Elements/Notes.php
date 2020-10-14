@@ -15,25 +15,20 @@ use App\Fountain\AbstractElement;
  */
 class Notes extends AbstractElement
 {
+    public $parseEmphasis = true;
     public const REGEX = "/^\s*\[{2}\s*([^\]\n])+\s*\]{2}\s*$/";
 
-    /**
-     * Capture [[ notes ]]
-     */
     public function match($line) {
        return preg_match(self::REGEX, $line);
     }
 
-    /**
-     * Trim whitespace and [[ ]]
-     */
     function sanitize($line)
     {
         return trim(str_replace(array('[[', ']]'), '', $line));
     }
 
-    public function render($line)
+    public function __toString()
     {
-        return '<p class="note"><em>['.$line.']</em></p>';
+        return '<p class="notes"><em>['.$this->getText().']</em></p>';
     }
 }

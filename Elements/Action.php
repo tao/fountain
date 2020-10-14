@@ -14,30 +14,18 @@ use App\Fountain\AbstractElement;
  */
 class Action extends AbstractElement
 {
-    public $shouldParseMarkdown = true;
+    public $parseEmphasis = true;
 
-    /**
-     * If there aren't any preceding newlines, and there's a "!"
-     * Additional action lines will be appended later.
-     */
     public const REGEX = "/^!/";
 
     public function match($line) {
        return preg_match(self::REGEX, trim($line));
     }
 
-    /**
-     * Find and return the text of the action without !
-     */
     function sanitize($line)
     {
+        // Find and return the text of the action without !
         preg_match("/^\s*!{1}(.*)/", $line, $matches);
         return count($matches) ? trim($matches[1]) : trim($line);
-    }
-
-    public function render($line)
-    {
-        $line = $this->sanitize($line);
-        return '<p>'.$line.'</p>';
     }
 }

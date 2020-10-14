@@ -10,21 +10,12 @@ use App\Fountain\AbstractElement;
  */
 class SceneHeading extends AbstractElement
 {
-    public $shouldParseMarkdown = true;
-
     public const REGEX = "/^(INT|EXT|EST|I\/??E)[\.\-\s]/i";
 
-    /**
-     * check if this is a forced or normal scene heading
-     * scene headings can be forced with a period .
-     */
     public function forcedHeading($line) {
         return preg_match("/^\.[^\.]/", $line);
     }
 
-    /**
-     * Match Scene Headings
-     */
     public function match($line) {
         $forced_scene_heading = $this->forcedHeading($line);
 
@@ -36,9 +27,6 @@ class SceneHeading extends AbstractElement
         return ($forced_scene_heading || $scene_heading);
     }
 
-    /**
-     * Sanitize the Scene Heading
-     */
     function sanitize($line)
     {
         // remove the prefix
@@ -54,15 +42,16 @@ class SceneHeading extends AbstractElement
         return trim($line_without_prefix);
     }
 
-    public function render($line)
+    public function __toString()
     {
+        $text = $this->getText();
         // Scene headings can contain options numbers
         // Let's remove these and add them to the HTML element
-        if (preg_match("/#.*#/i", $line, $numbering)) {
-            $line = preg_replace("/#.*#/i", "", $line);
-            return '<h3 class="scene-heading"><a name="'.$numbering[0].'"></a>'.$line.'</h3>';
+        if (preg_match("/#.*#/i", $text, $numbering)) {
+            $line = preg_replace("/#.*#/i", "", $text);
+            return '<h3 class="scene-heading"><a name="'.$numbering[0].'"></a>'.$text.'</h3>';
         }
 
-        return '<h3 class="scene-heading">'.$line.'</h3>';
+        return '<h3 class="scene-heading">'.trim($text).'</h3>';
     }
 }

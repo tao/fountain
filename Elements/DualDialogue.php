@@ -4,11 +4,13 @@ namespace App\Fountain\Elements;
 
 use App\Fountain\AbstractElement;
 
+/**
+ * DualDialog
+ * Check whether this is a dual dialog line,
+ * this element is not included in the render list
+ */
 class DualDialogue extends AbstractElement
 {
-    /**
-     * Check whether this is a dual dialog line
-     */
     public const REGEX = "/\^\s*$/";
 
     public function match($line) {
@@ -17,11 +19,8 @@ class DualDialogue extends AbstractElement
 
     public function sanitize($line)
     {
-        return $line;
-    }
-
-    public function render($line)
-    {
-        return $line;
+        // remove dual dialog mark
+        $line = preg_replace("/\^/i", "", $line);
+        return trim($line);
     }
 }

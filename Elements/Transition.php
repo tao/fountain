@@ -6,9 +6,6 @@ use App\Fountain\AbstractElement;
 
 class Transition extends AbstractElement
 {
-    /**
-     * Match transition types
-     */
     public const REGEX = "/^(\s+)?>.*/";
 
     protected $transitions = array(
@@ -29,13 +26,6 @@ class Transition extends AbstractElement
 
     public function sanitize($line)
     {
-        // (remove > prefix)
-        $line = ltrim($line, '>');
-        return $line;
-    }
-
-    public function render($line)
-    {
-        return '<p class="transition">'.$line.'</p>';
+        return ltrim($line, '>');
     }
 }

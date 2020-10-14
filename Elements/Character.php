@@ -4,12 +4,15 @@ namespace App\Fountain\Elements;
 
 use App\Fountain\AbstractElement;
 
+/**
+ * Characters
+ * Match CHARACTERS or any line starting with @
+ * Allow indents and whitespace in the beginning
+ */
 class Character extends AbstractElement
 {
-    /**
-     * Match CHARACTERS or any line starting with @
-     * Allow indents and whitespace in the beginning
-     */
+    public $dual_dialog = false;
+
     public const REGEX = "/^((\s*)[A-Z@]((([^a-z`]+)(\s?\(.*\))?))|(@.+))$/";
 
     public function match($line) {
@@ -26,8 +29,14 @@ class Character extends AbstractElement
         return $line;
     }
 
-    public function render($line)
+    public function __toString()
     {
-        return "<h4 class='character'>{$line}</h4>";
+        $character = $this->getText();
+
+        if (isset($this->dual_dialog) && $this->dual_dialog === true) {
+            $character .= " (DUAL)";
+        }
+
+        return "<h4 class='character'>{$character}</h4>";
     }
 }

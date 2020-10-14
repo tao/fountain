@@ -2,26 +2,8 @@
 
 namespace App\Fountain;
 
-use App\Fountain\CommonMark\Block\Element\IndentedContent;
-use App\Fountain\CommonMark\Block\Parser\IndentedContentParser;
-use App\Fountain\CommonMark\Block\Renderer\IndentedContentRenderer;
-use League\CommonMark\Block\Element\ListBlock;
-use League\CommonMark\Block\Element\ListItem;
-use League\CommonMark\Block\Element\Paragraph;
-use League\CommonMark\Block\Parser\ListParser;
-use League\CommonMark\Block\Renderer\ListBlockRenderer;
-use League\CommonMark\Block\Renderer\ListItemRenderer;
-use League\CommonMark\Block\Renderer\ParagraphRenderer;
-use League\CommonMark\CommonMarkConverter;
-use League\CommonMark\Environment;
-use League\CommonMark\Extension\Autolink\AutolinkExtension;
-use League\CommonMark\Extension\InlinesOnly\InlinesOnlyExtension;
-use League\CommonMark\Extension\SmartPunct\SmartPunctExtension;
-use League\CommonMark\Extension\Strikethrough\StrikethroughExtension;
-
 class FountainScribe
 {
-
     /**
      * Inline Notes
      * Process all inline notes in a line
@@ -71,9 +53,9 @@ class FountainScribe
     {
         // get the parts before and after _underline_ in the line of text
         list($before, $text) = preg_split("/_/", $line, 2);
-        list($note, $after) = preg_split("/_/", $text, 2);
+        list($emphasis, $after) = preg_split("/_/", $text, 2);
 
-        $underline = '<span class="underline">'.$note.'</span>';
+        $underline = '<span class="underline">'.$emphasis.'</span>';
 
         return $before.$underline.$after;
     }
@@ -94,5 +76,50 @@ class FountainScribe
         $html = str_replace('<p><ol>', '<ol>', $html);
         $html = str_replace('</ol></p>', '</ol>', $html);
         return $html;
+    }
+
+    /**
+     * Parse basic markdown Emphasis
+     */
+    public function parseEmphasis($line)
+    {
+        // inline notes
+        while (preg_match("/(\*\*.*?\*\*)/", $line)) {
+            $line = $this->handleBoldEmphasis($line);
+        }
+
+        while (preg_match("/(\*.*?\*)/", $line)) {
+            $line = $this->handleItalicEmphasis($line);
+        }
+
+        return $line;
+    }
+
+    /**
+     * Inline Bold
+     */
+    function handleBoldEmphasis($line)
+    {
+        // get the parts before and after **bold** in the line of text
+        list($before, $text) = preg_split("/\*\*/", $line, 2);
+        list($emphasis, $after) = preg_split("/\*\*/", $text, 2);
+
+        $bold = '<b>'.$emphasis.'</b>';
+
+        return $before.$bold.$after;
+    }
+
+    /**
+     * Inline Italic
+     */
+    function handleItalicEmphasis($line)
+    {
+        // get the parts before and after *italics* in the line of text
+        list($before, $text) = preg_split("/\*/", $line, 2);
+        list($emphasis, $after) = preg_split("/\*/", $text, 2);
+
+        $italic = '<i>'.$emphasis.'</i>';
+
+        return $before.$italic.$after;
     }
 }

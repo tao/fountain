@@ -6,10 +6,8 @@ use App\Fountain\AbstractElement;
 
 class SectionHeading extends AbstractElement
 {
-    /**
-     * If there aren't any preceding newlines, and there's a "!"
-     * Additional action lines will be appended later.
-     */
+    public $depth = 1;
+
     public const REGEX = "/^(#{1,})\s/";
 
     public function match($line) {
@@ -25,14 +23,14 @@ class SectionHeading extends AbstractElement
         return strlen($depth);
     }
 
-    /**
-     * Find and return the text without hashes
-     */
     function sanitize($line)
     {
         // find the number of # (##, ###, etc.) and the text
         preg_match("/^\s*(#+)\s*(.*)/", $line, $matches);
         list ($raw, $depth, $text) = $matches;
+
+        // calculate heading depth
+        $this->depth = strlen($depth);
 
         // return text
         return trim($text);
@@ -51,9 +49,9 @@ class SectionHeading extends AbstractElement
      * WARNING: Fountain checks if there is a Scene Heading before a Heading,
      *          the parser has been modified to allow headings at any time.
      */
-    function getHeadingDepth($text, $depth)
+    function getHeadingDepth($text)
     {
-        switch ($depth) {
+        switch ($this->depth) {
             case 1:
                 return '<h1>'.$text.'</h1>';
             case 2:
@@ -67,12 +65,10 @@ class SectionHeading extends AbstractElement
         }
     }
 
-    public function render($line)
+    public function __toString()
     {
-        $depth = $this->depth($line);
-        $text = $this->sanitize($line);
-        $heading = $this->getHeadingDepth($text, $depth);
         // Section headings are ignored in the output
+        // $heading = $this->getHeadingDepth($this->getText());
         return;
     }
 }

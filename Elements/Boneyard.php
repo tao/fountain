@@ -17,9 +17,9 @@ class Boneyard extends AbstractElement
         return preg_match(self::REGEX, $line);
     }
 
-    public function render($line)
+    public function __toString()
     {
         // Boneyard is ignored in the output
-        return;
+        return '';
     }
 }
