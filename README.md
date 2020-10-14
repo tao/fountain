@@ -1,6 +1,8 @@
 # Fountain Parser
 
-A PHP markdown parser for [fountain](https://fountain.io). 
+A PHP markdown parser for [fountain](https://fountain.io).
+
+A demo is available on [heroku](https://fountain-livewire.herokuapp.com) for testing.
 
 The parser currently uses some CommonMark elements for inline markdown processing.
 
