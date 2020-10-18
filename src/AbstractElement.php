@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Fountain;
+namespace Fountain;
 
-use Illuminate\Support\Str;
+use Fountain\Illuminate\Str;
 
 abstract class AbstractElement
 {
@@ -73,7 +73,7 @@ abstract class AbstractElement
      *
      * @return mixed|string
      */
-    public function appendText($text)
+    public function appendText($text): string
     {
         $this->text .= $text;
     }
@@ -83,7 +83,7 @@ abstract class AbstractElement
      *
      * @return mixed|string
      */
-    public function setText($text)
+    public function setText($text): string
     {
         $this->text = $text;
     }

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Fountain\Elements;
+namespace Fountain\Elements;
 
-use App\Fountain\AbstractElement;
+use Fountain\AbstractElement;
 
 class SectionHeading extends AbstractElement
 {
@@ -48,6 +48,8 @@ class SectionHeading extends AbstractElement
      *          however we have allowed them to be rendered.
      * WARNING: Fountain checks if there is a Scene Heading before a Heading,
      *          the parser has been modified to allow headings at any time.
+     * @param $text
+     * @return string
      */
     function getHeadingDepth($text)
     {
@@ -69,6 +71,5 @@ class SectionHeading extends AbstractElement
     {
         // Section headings are ignored in the output
         // $heading = $this->getHeadingDepth($this->getText());
-        return;
     }
 }

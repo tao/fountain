@@ -1,23 +1,23 @@
 <?php
 
-namespace App\Fountain;
+namespace Fountain;
 
-use App\Fountain\Elements\Action;
-use App\Fountain\Elements\BlankLine;
-use App\Fountain\Elements\NewLine;
-use App\Fountain\Elements\TextCenter;
-use App\Fountain\Elements\Character;
-use App\Fountain\Elements\Boneyard;
-use App\Fountain\Elements\Dialogue;
-use App\Fountain\Elements\DualDialogue;
-use App\Fountain\Elements\Lyrics;
-use App\Fountain\Elements\Notes;
-use App\Fountain\Elements\PageBreak;
-use App\Fountain\Elements\Parenthetical;
-use App\Fountain\Elements\SceneHeading;
-use App\Fountain\Elements\SectionHeading;
-use App\Fountain\Elements\Synopsis;
-use App\Fountain\Elements\Transition;
+use Fountain\Elements\Action;
+use Fountain\Elements\BlankLine;
+use Fountain\Elements\NewLine;
+use Fountain\Elements\TextCenter;
+use Fountain\Elements\Character;
+use Fountain\Elements\Boneyard;
+use Fountain\Elements\Dialogue;
+use Fountain\Elements\DualDialogue;
+use Fountain\Elements\Lyrics;
+use Fountain\Elements\Notes;
+use Fountain\Elements\PageBreak;
+use Fountain\Elements\Parenthetical;
+use Fountain\Elements\SceneHeading;
+use Fountain\Elements\SectionHeading;
+use Fountain\Elements\Synopsis;
+use Fountain\Elements\Transition;
 
 /**
  * FountainParser
@@ -41,9 +41,9 @@ class FountainParser
      *
      * @param  string  $contents  Fountain formatted text
      * @param  bool  $strict
-     * @return \App\Fountain\FountainElementCollection
+     * @return FountainElementCollection
      */
-    public function parse($contents, $strict = false)
+    public function parse(string $contents, $strict = false)
     {
         //-----------------------------------------------------
         // Prepare the file contents
@@ -121,7 +121,7 @@ class FountainParser
 
             // check for a blank line
             if ($assertNewLine) {
-                $this->add_element((new NewLine()));
+                $this->add_element(new NewLine());
                 continue;                   // no further processing needed
             }
 
@@ -182,7 +182,7 @@ class FountainParser
 
             if ((new PageBreak())->match($line)) {
                 // add a page break element
-                $this->add_element((new PageBreak()));
+                $this->add_element(new PageBreak());
                 continue;                   // no further processing needed
             }
 
@@ -450,7 +450,7 @@ class FountainParser
      * Add an Element to the collection
      * @param $element AbstractElement
      */
-    public function add_element($element)
+    public function add_element(AbstractElement $element)
     {
         $this->elements()->create_and_add_element($element);
     }

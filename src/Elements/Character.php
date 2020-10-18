@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Fountain\Elements;
+namespace Fountain\Elements;
 
-use App\Fountain\AbstractElement;
+use Fountain\AbstractElement;
 
 /**
  * Characters

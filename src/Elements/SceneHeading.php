@@ -1,8 +1,8 @@
-<?php
+<?php /** @noinspection SpellCheckingInspection */
 
-namespace App\Fountain\Elements;
+namespace Fountain\Elements;
 
-use App\Fountain\AbstractElement;
+use Fountain\AbstractElement;
 
 /**
  * Scene Heading
@@ -13,7 +13,7 @@ class SceneHeading extends AbstractElement
     public const REGEX = "/^(INT|EXT|EST|I\/??E)[\.\-\s]/i";
 
     public function forcedHeading($line) {
-        return preg_match("/^\.[^\.]/", $line);
+        return preg_match("/^\.[^.]/", $line);
     }
 
     public function match($line) {
@@ -49,7 +49,7 @@ class SceneHeading extends AbstractElement
         // Let's remove these and add them to the HTML element
         if (preg_match("/#.*#/i", $text, $numbering)) {
             $line = preg_replace("/#.*#/i", "", $text);
-            return '<h3 class="scene-heading"><a name="'.$numbering[0].'"></a>'.$text.'</h3>';
+            return '<h3 class="scene-heading" id="'.$numbering[0].'">'.$line.'</h3>';
         }
 
         return '<h3 class="scene-heading">'.trim($text).'</h3>';

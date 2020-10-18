@@ -17,5 +17,5 @@ A demo is available on [heroku](https://fountain-livewire.herokuapp.com) for tes
 ## Mentions
 The code has been built upon the previous work of these contributors.
 
- * Alex King (PHP port)
- * Yousefi & John August (original Objective-C version)
+ * [Alex King (PHP port)](https://github.com/alexking/Fountain-PHP)
+ * [Yousefi & John August (original Objective-C version)](https://github.com/nyousefi/Fountain)

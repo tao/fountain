@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Fountain;
+namespace Fountain;
 
 class FountainScribe
 {

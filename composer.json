@@ -1,0 +1,30 @@
+{
+    "name": "tao/fountain",
+    "homepage": "https://github.com/tao/fountain",
+    "description": "A PHP parser for Fountain, a simple markup syntax that allows screenplays to be written, edited, and shared in plain, human-readable text.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["fountain","markdown","screenplay"],
+    "authors": [
+        {
+            "name": "Daniel Shields",
+            "email": "daniel@karuna.co.za",
+            "homepage": "https://www.karuna.co.za",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/tao/fountain",
+        "issues": "https://github.com/tao/fountain/issues"
+    },
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=7.2",
+        "ext-ctype": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Fountain\\": "src/"
+        }
+    }
+}

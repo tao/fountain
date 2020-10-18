@@ -1,22 +1,22 @@
 <?php
 
-namespace App\Fountain;
+namespace Fountain;
 
-use App\Fountain\Elements\Action;
-use App\Fountain\Elements\NewLine;
-use App\Fountain\Elements\BlankLine;
-use App\Fountain\Elements\TextCenter;
-use App\Fountain\Elements\Character;
-use App\Fountain\Elements\Boneyard;
-use App\Fountain\Elements\Dialogue;
-use App\Fountain\Elements\Lyrics;
-use App\Fountain\Elements\Notes;
-use App\Fountain\Elements\Pagebreak;
-use App\Fountain\Elements\Parenthetical;
-use App\Fountain\Elements\SceneHeading;
-use App\Fountain\Elements\SectionHeading;
-use App\Fountain\Elements\Synopsis;
-use App\Fountain\Elements\Transition;
+use Fountain\Elements\Action;
+use Fountain\Elements\NewLine;
+use Fountain\Elements\BlankLine;
+use Fountain\Elements\TextCenter;
+use Fountain\Elements\Character;
+use Fountain\Elements\Boneyard;
+use Fountain\Elements\Dialogue;
+use Fountain\Elements\Lyrics;
+use Fountain\Elements\Notes;
+use Fountain\Elements\Pagebreak;
+use Fountain\Elements\Parenthetical;
+use Fountain\Elements\SceneHeading;
+use Fountain\Elements\SectionHeading;
+use Fountain\Elements\Synopsis;
+use Fountain\Elements\Transition;
 
 class FountainType
 {

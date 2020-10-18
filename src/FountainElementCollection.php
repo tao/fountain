@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Fountain;
+namespace Fountain;
 
 /**
  * FountainElement
@@ -31,7 +31,7 @@ class FountainElementCollection
 
     /**
      * Convenience function for creating and adding a FountainElement
-     * @param  string  $element  Character, Dialog, etc.
+     * @param $element AbstractElement Character, Dialogue, etc
      */
     public function create_and_add_element($element)
     {
