@@ -2,7 +2,7 @@
 
 namespace Fountain;
 
-class Fountain
+class Screenplay
 {
     /**
      * FountainParser
@@ -34,17 +34,28 @@ class Fountain
     public function parse(string $text)
     {
         $elements = $this->elements($text);
-        return $this->tags->parse($elements);
+        return $this->tags($elements);
     }
 
     /**
      * Parse Fountain text into FountainElements
      *
      * @param $text string input document
-     * @return mixed FountainElements
+     * @return mixed FountainElementsCollection
      */
     public function elements(string $text)
     {
         return $this->elements->parse($text);
+    }
+
+    /**
+     * Parse FountainElements into HTML
+     *
+     * @param $elements
+     * @return string HTML
+     */
+    public function tags($elements)
+    {
+        return $this->tags->parse($elements);
     }
 }
