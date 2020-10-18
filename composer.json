@@ -1,5 +1,5 @@
 {
-    "name": "tao/fountain",
+    "name": "karuna/fountain",
     "homepage": "https://github.com/tao/fountain",
     "description": "A PHP parser for Fountain, a simple markup syntax that allows screenplays to be written, edited, and shared in plain, human-readable text.",
     "type": "library",
