@@ -71,9 +71,9 @@ abstract class AbstractElement
     /**
      * Append to the text value of the element
      *
-     * @return mixed|string
+     * @param string $text
      */
-    public function appendText($text): string
+    public function appendText($text)
     {
         $this->text .= $text;
     }
@@ -81,9 +81,9 @@ abstract class AbstractElement
     /**
      * Set the text value of the element
      *
-     * @return mixed|string
+     * @param string $text
      */
-    public function setText($text): string
+    public function setText($text)
     {
         $this->text = $text;
     }
