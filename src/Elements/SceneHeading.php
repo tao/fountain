@@ -1,8 +1,11 @@
-<?php /** @noinspection SpellCheckingInspection */
+<?php
+
+/** @noinspection SpellCheckingInspection */
 
 namespace Fountain\Elements;
 
 use Fountain\AbstractElement;
+use Fountain\Illuminate\Str;
 
 /**
  * Scene Heading
@@ -10,13 +13,32 @@ use Fountain\AbstractElement;
  */
 class SceneHeading extends AbstractElement
 {
-    public const REGEX = "/^(INT|EXT|EST|I\/??E)[\.\-\s]/i";
+    public const REGEX = '/^(INT|EXT|EST|I\\/??E)[\\.\\-\\s]/i';
 
-    public function forcedHeading($line) {
-        return preg_match("/^\.[^.]/", $line);
+    public function __toString()
+    {
+        $text = $this->getText();
+        $className = Str::kebab($this->getClass());
+
+        // Scene headings can contain options numbers
+        // Let's remove these and add them to the HTML element
+        if (preg_match('/#.*#/i', $text, $numbering)) {
+            $line = preg_replace('/#.*#/i', '', $text);
+            $anchor = preg_replace('/#/i', '', $numbering[0]);
+
+            return '<h3 class="'.$className.'" id="'.$anchor.'">'.$line.'</h3>';
+        }
+
+        return '<h3 class="'.$className.'">'.trim($text).'</h3>';
     }
 
-    public function match($line) {
+    public function forcedHeading($line)
+    {
+        return preg_match('/^\\.[^.]/', $line);
+    }
+
+    public function match($line)
+    {
         $forced_scene_heading = $this->forcedHeading($line);
 
         // strict headings allow all scene_headings
@@ -24,10 +46,10 @@ class SceneHeading extends AbstractElement
         // to fix this: prefix sentences with an exclamation point `!`
         $scene_heading = preg_match(self::REGEX, $line, $scene_heading_matches);
 
-        return ($forced_scene_heading || $scene_heading);
+        return $forced_scene_heading || $scene_heading;
     }
 
-    function sanitize($line)
+    public function sanitize($line)
     {
         // remove the prefix
         if ($this->forcedHeading($line)) {
@@ -39,19 +61,7 @@ class SceneHeading extends AbstractElement
         }
 
         $line_without_prefix = substr($line, $prefix_length);
+
         return trim($line_without_prefix);
-    }
-
-    public function __toString()
-    {
-        $text = $this->getText();
-        // Scene headings can contain options numbers
-        // Let's remove these and add them to the HTML element
-        if (preg_match("/#.*#/i", $text, $numbering)) {
-            $line = preg_replace("/#.*#/i", "", $text);
-            return '<h3 class="scene-heading" id="'.$numbering[0].'">'.$line.'</h3>';
-        }
-
-        return '<h3 class="scene-heading">'.trim($text).'</h3>';
     }
 }
