@@ -71,5 +71,6 @@ class SectionHeading extends AbstractElement
     {
         // Section headings are ignored in the output
         // $heading = $this->getHeadingDepth($this->getText());
+        return '';
     }
 }
