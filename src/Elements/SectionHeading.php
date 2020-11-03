@@ -64,6 +64,10 @@ class SectionHeading extends AbstractElement
                 return '<h4>'.$text.'</h4>';
             case 5:
                 return '<h5>'.$text.'</h5>';
+            case 6:
+                return '<h6>'.$text.'</h6>';
+            default:
+                return $text;
         }
     }
 
