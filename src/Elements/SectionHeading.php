@@ -8,7 +8,7 @@ class SectionHeading extends AbstractElement
 {
     public $depth = 1;
 
-    public const REGEX = "/^(#{1,})\s/";
+    public const REGEX = "/^(#{1,})\s(.*)/";
 
     public function match($line) {
        return preg_match(self::REGEX, trim($line));
@@ -16,7 +16,7 @@ class SectionHeading extends AbstractElement
 
     public function depth($line) {
         // find the number of # (##, ###, etc.) and the text
-        preg_match("/^\s*(#+)\s*(.*)/", $line, $matches);
+        preg_match("/^(#+)\s*(.*)/", $line, $matches);
         list ($raw, $depth, $text) = $matches;
 
         // convert depth to a number and compact into array
@@ -26,7 +26,7 @@ class SectionHeading extends AbstractElement
     function sanitize($line)
     {
         // find the number of # (##, ###, etc.) and the text
-        preg_match("/^\s*(#+)\s*(.*)/", $line, $matches);
+        preg_match("/^(#+)\s*(.*)/", $line, $matches);
         list ($raw, $depth, $text) = $matches;
 
         // calculate heading depth
