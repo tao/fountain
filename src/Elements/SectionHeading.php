@@ -8,7 +8,7 @@ class SectionHeading extends AbstractElement
 {
     public $depth = 1;
 
-    public const REGEX = "/^(#{1,})\s/";
+    public const REGEX = "/^(#{1,})\S/";
 
     public function match($line) {
        return preg_match(self::REGEX, trim($line));
